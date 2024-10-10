@@ -33,3 +33,13 @@ graalvmNative {
         }
     }
 }
+
+test {
+    // Disable Ryuk and use the JVM for bringing containers up/down. See TestcontainersTest for more details.
+    environment.put("TESTCONTAINERS_RYUK_DISABLED", "true")
+}
+
+tasks.named('nativeTest') {
+    // Disable Ryuk and use the JVM for bringing containers up/down. See TestcontainersTest for more details.
+    environment.put("TESTCONTAINERS_RYUK_DISABLED", "true")
+}

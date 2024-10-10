@@ -17,31 +17,26 @@ import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// This test is pulling testcontainers/ryuk docker image version with many known vulnerabilities. It should be ignored until testcontainers change this image.
+// This test does not use testcontainers/ryuk image for removing containers, but uses the Java
+// AutoCloseable to bring down containers after the test succeeds.
+// The Ryuk image cannot be used because it contains many CVEs, and new versions of Ryuk are not
+// compatible with Testcontainers v1.19.8 .
 // ISSUE: https://github.com/oracle/graalvm-reachability-metadata/issues/250
 class TestcontainersTest {
     private static final boolean DEBUG = false;
 
-    // DO NOT REMOVE THIS! READ THE COMMENT ABOVE THE CLASS
-    // tests should be disabled until testconatiners/ryuk is fixed
-    private static final boolean IS_DISABLED = true;
-
     @BeforeAll
     static void beforeAll() {
-        // DO NOT REMOVE THIS! READ THE COMMENT ABOVE THE CLASS
-        if (IS_DISABLED) {
-            return;
-        }
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", DEBUG ? "debug" : "warn");
+        // Ensure we are not running Ryuk
+        String ryukDisabled = System.getenv().get("TESTCONTAINERS_RYUK_DISABLED");
+        assertThat(ryukDisabled)
+                .withFailMessage("Expected Ryuk to be disabled through the environment variable TESTCONTAINERS_RYUK_DISABLED=true, but found TESTCONTAINERS_RYUK_DISABLED=%s", ryukDisabled)
+                .isEqualTo("true");
     }
 
     @Test
     void test() throws Exception {
-        // DO NOT REMOVE THIS! READ THE COMMENT ABOVE THE CLASS
-        if (IS_DISABLED) {
-            return;
-        }
-
         try (GenericContainer<?> nginx = new GenericContainer<>("nginx:1-alpine-slim")) {
             nginx.withExposedPorts(80).start();
             HttpClient httpClient = HttpClient.newBuilder().build();
